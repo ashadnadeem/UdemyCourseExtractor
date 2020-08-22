@@ -9,13 +9,17 @@ import csv
 Title = list()
 Rating = list()
 Price = list()
+Links = list()
 
 def visitSite(links):
     """Visits the Udemy Website for the course and Get the Meta Data for each Course link provided
-    :returns List of Title , Price and Rating
+    :returns List of Title, Price, Rating and Url
     """
     for i,url in enumerate(links):
         soup = BeautifulSoup(requests.get(url).content, "html.parser")
+
+        #Add Link to list of links
+        Links.append(url)
 
         # Gets The Title of the Course
         print("Visiting Course {}".format(i))
@@ -31,14 +35,15 @@ def visitSite(links):
                 if rat:
                     # print("Rating :{}".format(rat.group(1)))
                     Rating.insert(i, rat.group(1))
-    return Title, Price, Rating
+    return Title, Price, Rating, Links
 
-def print_table(t,p,r):
+def print_table(t,p,r,l):
     """Prints Title Price and Rating of the courses"""
     for i , Title in enumerate(t):
         print(Title,end=", ")
         print(p[i],end=", ")
-        print(r[i])
+        print(r[i],end=", ")
+        print(l[i])
 
 def readLinks(filename):
     """Read Links from txt file, Take FileName as Parameter"""
@@ -47,19 +52,19 @@ def readLinks(filename):
     print("Reading Courses from File")
     return courses
 
-def write_csv(t, p, r):
+def write_csv(t, p, r, l):
     """Write Title Price and Rating of the course to Csv File"""
 
     with open("Courses.csv", "w") as csvfile:
         writer = csv.writer(csvfile)
         for i, Title in enumerate(t):
-            row = [Title, p[i], r[i]]
+            row = [Title, p[i], r[i], l[i]]
             writer.writerow(row)
     print("Writing Csv")
 
 if __name__ == '__main__':
 
     courseLinks = readLinks("UdemyLinks.txt")
-    Title,Price,Rating = visitSite(courseLinks)
-    print_table(Title, Price, Rating)
-    write_csv(Title, Price, Rating)
+    Title,Price,Rating, Links = visitSite(courseLinks)
+    print_table(Title, Price, Rating, Links)
+    write_csv(Title, Price, Rating, Links)
